@@ -16,7 +16,6 @@ class UsersController < ApplicationController
 
   # POST /users
   def create
-  
     if params[:id]
      render status: 400, json: { error: "No se puede crear usuario con id" }
     else 
@@ -31,13 +30,14 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
-    if params[:id]
+    update_params = update_params_with_id
+    if update_params[:id] != @user.id
       render status: 400, json: { error: "id no es modificable" }
     else
-      if @user.update(user_params)
-        render json: @user
+      if @user.update(update_params)
+        render status: 200
       else
-        render json: @user.errors, status: :unprocessable_entity
+        render render status: 500, json: { error: "La modificacion ha fallado" }
       end
     end
   
@@ -56,7 +56,15 @@ class UsersController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def user_params
-      params.require(:user).permit(:usuario, :nombre, :apellido, :twitter)
+      params.require(:user).permit(:id, :usuario, :nombre, :apellido, :twitter)
+    end
+    
+    def update_params_with_id
+      update_params = user_params
+      unless update_params[:id]
+        update_params[:id] = @user.id
+      end
+      update_params
     end
     
 end
