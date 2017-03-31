@@ -31,13 +31,19 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1
   def update
     update_params = update_params_with_id
+    
+    if update_params.count > 2
+      render status: 500, json: { error: "La modificacion ha fallado" }
+      return
+    end
+    
     if update_params[:id] != @user.id
       render status: 400, json: { error: "id no es modificable" }
     else
       if @user.update(update_params)
         render status: 200
       else
-        render render status: 500, json: { error: "La modificacion ha fallado" }
+        render status: 500, json: { error: "La modificacion ha fallado" }
       end
     end
   
